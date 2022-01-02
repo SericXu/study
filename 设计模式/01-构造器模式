@@ -1,0 +1,25 @@
+## 构造器模式
+
+例子：
+
+```javascript
+const Bruce = {
+  name: '布鲁斯',
+  age: 25,
+  career: 'coder'
+}
+
+// 构造器
+// es6 class 等同于 es5 function
+function User(name, age, career){
+  this.name = name
+  this.age = age
+  this.career = career
+}
+```
+
+
+
+以上的过程就是抽象了每个User实例的变与不变，不变的是User的name，age，career等共有的属性，但是每个属性的值是变化的，所以再次说明了设计模式是确保共性的不变，同时开放了可变性。
+
+----

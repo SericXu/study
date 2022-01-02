@@ -1,0 +1,180 @@
+## 适配器模式
+
+> 为了兼容接口 -- 旧的业务需要拓展
+
+例子：
+fetch
+```JavaScript
+export default class HttpUtils {
+  // get方法
+  static get(url) {
+    return new Promise((resolve, reject) => {
+      // 调用fetch
+      fetch(url)
+        .then(response => response.json())
+        .then(result => {
+          resolve(result)
+        })
+        .catch(error => {
+          reject(error)
+        })
+    })
+  }
+
+  // post方法，data以object形式传入
+  static post(url, data) {
+    return new Promise((resolve, reject) => {
+      // 调用fetch
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        // 将object类型的数据格式化为合法的body参数
+        body: this.changeData(data)
+      })
+        .then(response => response.json())
+        .then(result => {
+          resolve(result)
+        })
+        .catch(error => {
+          reject(error)
+        })
+    })
+  }
+
+  // body请求体的格式化方法
+  static changeData(obj) {
+    var prop,
+      str = ''
+    var i = 0
+    for (prop in obj) {
+      if (!prop) {
+        return
+      }
+      if (i == 0) {
+        str += prop + '=' + obj[prop]
+      } else {
+        str += '&' + prop + '=' + obj[prop]
+      }
+      i++
+    }
+    return str
+  }
+}
+```
+调用方式：
+```javascript
+// 定义目标url地址
+const URL = "xxxxx"
+// 定义post入参
+const params = {
+  ...
+}
+
+// 发起post请求
+const postResponse = await HttpUtils.post(URL,params) || {}
+
+// 发起get请求
+const getResponse = await HttpUtils.get(URL) || {}
+```
+
+这时如果再加上ajax的调用，就要考虑传参方式和调用的方法也都不一样
+```javascript
+// 发送get请求
+Ajax('get', url地址, post入参, function(data){
+    // 成功的回调逻辑
+}, function(error){
+    // 失败的回调逻辑
+})
+```
+
+这时候适配器的作用就显现出来了
+```javascript
+// Ajax适配器函数，入参与旧接口保持一致
+async function AjaxAdapter(type, url, data, success, failed) {
+    const type = type.toUpperCase()
+    let result
+    try {
+         // 实际的请求全部由新接口发起
+         if(type === 'GET') {
+            result = await HttpUtils.get(url) || {}
+        } else if(type === 'POST') {
+            result = await HttpUtils.post(url, data) || {}
+        }
+        // 假设请求成功对应的状态码是1
+        result.statusCode === 1 && success ? success(result) : failed(result.statusCode)
+    } catch(error) {
+        // 捕捉网络错误
+        if(failed){
+            failed(error.statusCode);
+        }
+    }
+}
+
+// 用适配器适配旧的Ajax方法
+async function Ajax(type, url, data, success, failed) {
+    await AjaxAdapter(type, url, data, success, failed)
+}
+```
+
+在 axios 的核心逻辑中，该方法内部其实主要做了两件事：
+
+* 数据转换，转换请求体/响应体，可以理解为数据层面的适配；
+* 调用适配器。
+
+调用适配器的逻辑如下：
+
+```javascript
+  // 若用户未手动配置适配器，则使用默认的适配器
+  var adapter = config.adapter || defaults.adapter;
+
+  // dispatchRequest方法的末尾调用的是适配器方法
+  return adapter(config).then(function onAdapterResolution(response) {
+    // 请求成功的回调
+    throwIfCancellationRequested(config);
+
+    // 转换响应体
+    response.data = transformData(
+      response.data,
+      response.headers,
+      config.transformResponse
+    );
+
+    return response;
+  }, function onAdapterRejection(reason) {
+    // 请求失败的回调
+    if (!isCancel(reason)) {
+      throwIfCancellationRequested(config);
+
+      // 转换响应体
+      if (reason && reason.response) {
+        reason.response.data = transformData(
+          reason.response.data,
+          reason.response.headers,
+          config.transformResponse
+        );
+      }
+    }
+
+    return Promise.reject(reason);
+  });
+```
+
+实际开发中，我们使用默认适配器的频率更高。默认适配器在axios/lib/default.js里是通过getDefaultAdapter方法来获取的：
+
+```javascript
+function getDefaultAdapter() {
+  var adapter;
+  // 判断当前是否是node环境
+  if (typeof process !== 'undefined' && Object.prototype.toString.call(process) === '[object process]') {
+    // 如果是node环境，调用node专属的http适配器
+    adapter = require('./adapters/http');
+  } else if (typeof XMLHttpRequest !== 'undefined') {
+    // 如果是浏览器环境，调用基于xhr的适配器
+    adapter = require('./adapters/xhr');
+  }
+  return adapter;
+}
+```

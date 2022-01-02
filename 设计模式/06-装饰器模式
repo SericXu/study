@@ -1,0 +1,98 @@
+## 装饰器模式
+
+在 ES7 中，我们可以像写 python 一样通过一个@语法糖轻松地给一个类装上装饰器：
+
+```javascript
+// 装饰器函数，它的第一个参数是目标类
+function classDecorator(target) {
+    target.hasDecorator = true
+  	return target
+}
+
+// 将装饰器“安装”到Button类上
+@classDecorator
+class Button {
+    // Button类的相关逻辑
+}
+
+// 验证装饰器是否生效
+console.log('Button 是否被装饰了：', Button.hasDecorator)
+```
+
+> 类装饰器
+
+```js
+function classDecorator(target) {
+    target.hasDecorator = true
+  	return target
+}
+
+// 将装饰器“安装”到Button类上
+@classDecorator
+class Button {
+    // Button类的相关逻辑
+}
+```
+
+> 方法装饰器
+
+```js
+function funcDecorator(target, name, descriptor) {
+    let originalMethod = descriptor.value
+    descriptor.value = function() {
+    console.log('我是Func的装饰器逻辑')
+    return originalMethod.apply(this, arguments)
+  }
+  return descriptor
+}
+
+class Button {
+    @funcDecorator
+    onClick() {
+        console.log('我是Func的原有逻辑')
+    }
+}
+```
+
+直接放进浏览器/Node 中运行会报错，因为浏览器和 Node 目前都不支持装饰器语法，需要大家安装 [Babel](https://link.juejin.cn/?target=https%3A%2F%2Fbabeljs.io%2F) 进行转码：
+
+> 安装 Babel 及装饰器相关的 Babel 插件
+
+```
+npm install babel-preset-env babel-plugin-transform-decorators-legacy --save-dev
+```
+
+> 注：在没有任何配置选项的情况下，babel-preset-env 与 babel-preset-latest（或者 babel-preset-es2015，babel-preset-es2016 和 babel-preset-es2017 一起）的行为完全相同。
+>
+> > 编写配置文件.babelrc：
+>
+> ```json
+> {
+>   "presets": ["env"],
+>   "plugins": ["transform-decorators-legacy"]
+> }
+> ```
+>
+> 最后别忘了下载全局的 Babel 命令行工具用于转码：
+>
+> ```
+> npm install babel-cli -g
+> ```
+>
+> 执行完这波操作，我们首先是对目标文件进行转码，比如说你的目标文件叫做 `test.js`，想要把它转码后的结果输出到 `babel_test.js`，就可以这么写:
+>
+> ```
+> babel test.js --out-file babel_test.js
+> ```
+>
+> > 运行babel_test.js
+>
+> ```
+> babel_test.js
+> ```
+>
+> 就可以看到你的装饰器是否生效啦~
+
+装饰模式库 —— [core-decorators](https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Fjayphelps%2Fcore-decorators)
+
+----
