@@ -67,7 +67,109 @@
 
 ----
 - es6有哪些新特性，前端开发者不得不知道的ES6十大特性
+1. ##### Default Parameters（默认参数） in ES6
 
+  在实际项目中，我们经常遇到需要函数传参对情况
+  ```javascript
+  function foo(bar){
+    // bar 为一个obejct类型
+    bar.name = 'zhangsan' //当bar为空时，此处会报错，程序将会终止
+  }
+
+  foo() // Error
+  ```
+  以上情形导致我们在调用`foo()`方法时必须保证参数不能为空才能保证程序正常运行。
+
+  但现在ES6提供了默认参数特性可以解决这一问题：
+  ```javascript
+  function foo(bar = {}){
+    // bar = {}， 在bar为空时，会默认给bar赋值{}
+    bar.name = 'zhangsan' // 此处不会出错，正常运行
+    console.log(bar.name)
+  }
+  foo() // 输出："zhangsan"
+  ```
+2. ##### Template Literals （模板文本）in ES6
+
+  以前拼接字符串经常是这么做：
+  ```javascript
+  let str = "hello " + name
+  ```
+  现在：
+  ```javascript
+  let str = `hello ${name}`
+  ```
+  通过反引号"\`\`" + ${变量}来完成字符串拼接，其中${}可写表达式：
+  ```javascript
+  let str = `hello ${1 > 0 ? 'foo' : 'bar'}` // foo
+  ```
+
+3. ##### Multi-line Strings （多行字符串）in ES6
+  ES5:
+  ```javascript
+  var roadPoem = 'Then took the other, as just as fair,nt'
+    + 'And having perhaps the better claimnt'
+    + 'Because it was grassy and wanted wear,nt'
+    + 'Though as for that the passing therent'
+    + 'Had worn them really about the same,nt';
+var fourAgreements = 'You have the right to be you.n
+    You can only be you when you do your best.';
+  ```
+
+  ES6:
+  ```javascript
+var roadPoem = `Then took the other, as just as fair,
+    And having perhaps the better claim
+    Because it was grassy and wanted wear,
+    Though as for that the passing there
+    Had worn them really about the same,`;
+var fourAgreements = `You have the right to be you.
+    You can only be you when you do your best.`;
+  ```
+
+4. ##### Destructuring Assignment （解构赋值）in ES6
+  以前我们获取一个对象的属性可以这么写：
+  ```javascript
+  var obj = {
+    name: 'zhangsan',
+    age: 18
+  }
+
+  var name = obj.name
+  var age = obj.age
+  ...
+
+  ```
+  当获取一两个属性的时候这么写写也没什么问题，但是当有十几二十个属性的时候，需要写很多行代码，看起来十分冗余，且不利于维护，而ES6的解构赋值就完美的解决了这一问题：
+  ```javascript
+  let obj = {
+    name: 'zhangsan',
+    age: 18
+  }
+  let { name, age } = obj
+  console.log(name, age) // zhangsan, 18
+  ```
+
+  我们可以利用这一特性完成很多复杂的操作，比如交换赋值。当需要给两个变量a,b交换一下各自的值的时候，以前都是需要一个新的临时变量c来作为中间的转换媒介：
+  ```javascript
+  let a = 1, b = 2
+  let c = a // 保存a的值
+  a = b // 将b的值给a
+  b = c // 将c中保存的a的值给b
+  ```
+  当用结构赋值这一特性就变成了这样：
+  ```javascript
+  let a = 1, b =2
+  [a, b] = [b, a]
+  ```
+  只需要一行代码，且不需要定义一个临时变量就可以完成
+
+5. ##### Enhanced Object Literals （增强的对象文本）in ES6
+6. ##### Arrow Functions （箭头函数）in ES6
+7. ##### Promises in ES6
+8. ##### Block-Scoped Constructs Let and Const（块作用域构造 Let and Const）
+9. ##### Classes（类） in ES6
+10. ##### Modules（模块） in ES6
 
 ----
 - Promise实现原理
