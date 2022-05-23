@@ -1,5 +1,3 @@
-> 以下不分先后次序：
-
 - ### Map和Set的区别
   >Set类似于数组，但是它里面每一项的值是唯一的，没有重复的值，Set是一个构造函数，用来生成set的数据结构。
   一般需要对多个数组求并集、差集、交集、去重等都会用到Set。
@@ -62,13 +60,17 @@
 -Object 都有自己的原型，原型链上的键名有可能和你自己在对象上的设置的键名产生冲突。
 
 ----
-- 数组的filter、every、flat的作用是什么
+- ### 数组的filter、every、flat的作用是什么
 
 
 ----
-- es6有哪些新特性，前端开发者不得不知道的ES6十大特性
-1. ##### Default Parameters（默认参数） in ES6
+- ### es6有哪些新特性，前端开发者不得不知道的ES6十大特性
 
+
+<details>
+  <summary>
+    <h4>Default Parameters（默认参数） in ES6</h3>
+  </summary>
   在实际项目中，我们经常遇到需要函数传参对情况
   ```javascript
   function foo(bar){
@@ -89,7 +91,12 @@
   }
   foo() // 输出："zhangsan"
   ```
-2. ##### Template Literals （模板文本）in ES6
+</details>
+<details>
+  <summary>
+    <h4>Template Literals （模板文本）in ES6</h4>
+  </summary>
+
 
   以前拼接字符串经常是这么做：
   ```javascript
@@ -103,8 +110,13 @@
   ```javascript
   let str = `hello ${1 > 0 ? 'foo' : 'bar'}` // foo
   ```
+</details>
 
-3. ##### Multi-line Strings （多行字符串）in ES6
+<details>
+  <summary>
+    <h4>Multi-line Strings （多行字符串）in ES6</h4>
+  </summary>
+
   ES5:
   ```javascript
   var roadPoem = 'Then took the other, as just as fair,nt'
@@ -126,8 +138,11 @@ var roadPoem = `Then took the other, as just as fair,
 var fourAgreements = `You have the right to be you.
     You can only be you when you do your best.`;
   ```
-
-4. ##### Destructuring Assignment （解构赋值）in ES6
+</details>
+<details>
+  <summary>
+    <h4>Destructuring Assignment （解构赋值）in ES6</h4>
+  </summary>
   以前我们获取一个对象的属性可以这么写：
   ```javascript
   var obj = {
@@ -160,16 +175,178 @@ var fourAgreements = `You have the right to be you.
   当用结构赋值这一特性就变成了这样：
   ```javascript
   let a = 1, b =2
-  [a, b] = [b, a]
+  [a, b] = [b, a] // a = 2, b = 1
   ```
   只需要一行代码，且不需要定义一个临时变量就可以完成
+</details>
 
-5. ##### Enhanced Object Literals （增强的对象文本）in ES6
-6. ##### Arrow Functions （箭头函数）in ES6
-7. ##### Promises in ES6
-8. ##### Block-Scoped Constructs Let and Const（块作用域构造 Let and Const）
-9. ##### Classes（类） in ES6
-10. ##### Modules（模块） in ES6
+<details>
+  <summary>
+    <h4>Enhanced Object Literals （增强的对象文本）in ES6</h4>
+  </summary>
+
+> 相对于es5的简化写法
+
+* 函数类属性的省略语法
+```javascript
+const obj = {
+    //Before
+    foo: function(){
+        return 'foo';
+    },
+
+    //After
+    bar(){
+        return 'bar';
+    }
+}
+```
+
+* 支持 proto 注入
+
+直接向一个对象字面量注入__proto__，使其直接成为指定类的一个实例，而无须另外创建一个类来实现继承。
+
+```javascript
+import {EventEmitter} from 'events'
+
+const machine = {
+    __proto__: new EventEmitter(),
+
+    method(){},
+    ...
+}
+
+console.log(machine);  //EventEmitter {}
+console.log(machine instanceof EventEmitter)  //true
+
+machine.on('event', msg => console.log(`Received message: ${msg}`));
+machine.emit('event', 'hello world');
+// Received message: hello world
+
+machine.method(/* …. */);
+```
+
+* 可动态计算的属性名
+使用一个表达式来表达一个属性名：`{ [statement]: value}`
+```javascript
+const prefix = 'ES6';
+const obj = {
+    [prefix + 'enhancedObject']: 'foo'
+}
+```
+* 将属性名定义省略
+变量名和属性名都是相同的，可以对属性名定义进行省略
+```javascript
+const foo = 123;
+const bar = () => foo;
+const obj = {
+    foo,
+    bar
+}
+console.log(obj);  //{ foo: 123, bar: [Function] }
+```
+</details>
+
+<details>
+  <summary>
+    <h4>Arrow Functions （箭头函数）in ES6</h4>
+  </summary>
+箭头函数和普通函数的区别：
+- 声明方式不同，匿名函数
+
+  箭头函数只需要`() => `，普通函数需要声明Function关键字
+- <strong style="color: red">this指向不同</strong>
+> 普通函数的this指向运行时调用该方法时所在的上下文对象，箭头函数<span style="color: red">没有自己的this对像</span>，内部的this就是定义时上层作用域中的this。也就是说，***箭头函数内部的this指向是固定的，相比之下，普通函数的this指向是可变的***。
+
+  ```javascript
+  var name = 'foo1'
+  var person = {
+      name: 'foo2',
+      say: function() {
+          console.log('say:',this.name)
+      },
+      say2: () => {
+          console.log('say2:',this.name)
+      }
+  }
+  person.say() // say: foo2
+  person.say2() // say2: foo1
+  ```
+  这里第一个`say`定义的是一个普通函数，并且它是作为对象`person`的方法来进行调用的，所以它的`this`指向的就是`person`，所以它应该会输出`say: foo2`
+而第二个`say2`定义的是一个箭头函数，我们知道箭头函数本身没有this，它的this永远指向它定义时所在的上层作用域，所以`say2`的`this`应该指向的是全局`window`，所以它会输出`say2: foo1`
+我们也可以通过Babel 转箭头函数产生的 ES5 代码来证明箭头函数没有自己的this，而是引用的上层作用域中this。
+
+  ```javascript
+  // ES6
+  function foo() {
+    setTimeout(() => {
+      console.log('id:', this.id); // 此处的this是foo中的this
+    }, 100);
+  }
+
+  // ES5
+  function foo() {
+    var _this = this;
+
+    setTimeout(function () {
+      console.log('id:', _this.id);
+    }, 100);
+  }
+  ```
+
+* <strong style="color: red">箭头函数的this永远不会变，call、apply、bind也无法改变</strong>
+* 箭头函数没有原型prototype
+* 箭头函数不能当成一个构造函数
+
+  因为箭头函数没有自己的this，执行new的步骤：
+  ```javascript
+  function myNew() {
+  // 1.新建一个空对象
+  let obj = {}
+  // 2.获得构造函数
+  let con = arguments.__proto__.constructor
+  // 3.链接原型
+  obj.__proto__ = con.prototype
+  // 4.绑定this，执行构造函数
+  let res = con.apply(obj, arguments)
+  // 5.返回新对象
+  return typeof res === 'object' ? res : obj
+  }
+  ```
+  它的`this`其实是继承了外层执行环境中的`this`，且`this`指向***永远不会变***，并且箭头函数没有原型`prototype`，没法让他的实例的`__proto__`属性指向，所以箭头函数也就无法作为构造函数，否则用new调用时会报错！
+
+* 没有new.target，箭头函数没有自己的arguments，箭头函数处于全局作用域中，则没有arguments
+
+</details>
+
+<details>
+  <summary>
+    <h4>Promises in ES6</h4>
+  </summary>
+  
+</details>
+
+<details>
+  <summary>
+    <h4>Block-Scoped Constructs Let and Const（块作用域构造 Let and Const）</h4>
+  </summary>
+
+</details>
+
+<details>
+  <summary>
+    <h4>Classes（类） in ES6</h4>
+  </summary>
+
+</details>
+
+<details>
+  <summary>
+    <h4>Modules（模块） in ES6</h4>
+  </summary>
+
+</details>
+
 
 ----
 - Promise实现原理
